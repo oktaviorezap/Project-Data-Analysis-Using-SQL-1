@@ -1,0 +1,46 @@
+# Project-Data-Analysis-Using-SQL-1
+Project Data Analysis for Retail: Sales Performance Report
+
+#Overall Performance by Year
+SELECT year(order_date) AS years, 
+SUM(sales) AS sales, 
+COUNT(order_quantity) AS number_of_order 
+FROM dqlab_sales_store 
+WHERE order_status = 'Order Finished'
+GROUP BY years
+ORDER BY years ASC;
+
+#Overall Performance by Product Sub Category
+SELECT year(order_date) AS years,
+product_sub_category,
+SUM(sales) AS sales
+FROM dqlab_sales_store
+WHERE order_status = 'Order Finished' AND year(order_date) in ('2011','2012')
+GROUP BY years, product_sub_category
+ORDER BY years, sales DESC;
+
+#Promotion Effectiveness and Efficiency by Years
+SELECT years,sales, promotion_value,
+round((promotion_value/sales)*100,2) AS burn_rate_percentage
+FROM (SELECT year(order_date) AS years,
+	 SUM(discount_value) AS promotion_value, 
+	 SUM(sales) AS sales FROM dqlab_sales_store
+	 WHERE order_status = 'Order Finished' GROUP BY years) a
+ORDER BY years ;	 
+
+#Promotion Effectiveness and Efficiency by Product Sub Category
+SELECT years, product_sub_category, product_category, sales, promotion_value,round((promotion_value/sales)*100,2) AS burn_rate_percentage
+FROM (SELECT year(order_date) AS years,
+	  product_category, product_sub_category,
+	 SUM(discount_value) AS promotion_value,
+	 SUM(sales) AS sales FROM dqlab_sales_store
+   WHERE order_status = 'Order Finished' AND year(order_date) in ('2012') GROUP BY years,product_category,product_sub_category)a 
+ORDER BY sales DESC;
+
+#Customers Transactions per Year
+SELECT year(order_date) AS years,
+COUNT(DISTINCT customer) AS number_of_customer
+FROM dqlab_sales_store
+WHERE order_status = 'Order Finished'
+GROUP BY years
+ORDER BY years ASC;
